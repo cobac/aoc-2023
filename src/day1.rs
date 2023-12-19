@@ -53,9 +53,9 @@ mod tests {
     #[test]
     fn p1_test() {
         let input = "1abc2
-            pqr3stu8vwx
-            a1b2c3d4e5f
-            treb7uchet";
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet";
         assert_eq!(p1(input), 142);
     }
 
