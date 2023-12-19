@@ -20,7 +20,7 @@ pub fn p1(input: &str) -> u32 {
 
 #[aoc(day1, part2, coba)]
 pub fn p2(input: &str) -> u32 {
-    // This approach doesn't work coz e.g. "eightwothree" needs to be "8wo3"
+    // This approach doesn't work coz e.g. "eightwothree" needs to be "8wo3" and "1oneight" needs to be "18"
     let v: Vec<_> = input
         .replace("one", "1")
         .replace("two", "2")
