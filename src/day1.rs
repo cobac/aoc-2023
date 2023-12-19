@@ -18,6 +18,21 @@ pub fn p1(input: &str) -> u32 {
         .sum()
 }
 
+#[aoc(day1, part1, internet)]
+pub fn p1_(input: &str) -> u32 {
+    input
+        .lines()
+        .map(|line| {
+            let mut it = line.chars().filter_map(|char| char.to_digit(10));
+            let first = it.next().expect("expecting at least one number");
+            match it.last() {
+                Some(i) => first * 10 + i,
+                None => first * 10 + first,
+            }
+        })
+        .sum()
+}
+
 #[aoc(day1, part2, coba)]
 pub fn p2(input: &str) -> u32 {
     // This approach doesn't work coz e.g. "eightwothree" needs to be "8wo3" and "1oneight" needs to be "18"
