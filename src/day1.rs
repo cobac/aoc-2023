@@ -23,12 +23,10 @@ pub fn p1_(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let mut it = line.chars().filter_map(|char| char.to_digit(10));
-            let first = it.next().expect("expecting at least one number");
-            match it.last() {
-                Some(i) => first * 10 + i,
-                None => first * 10 + first,
-            }
+            let mut values = line.chars().filter_map(|char| char.to_digit(10));
+            let first = values.next().expect("expecting at least one number");
+            let last = values.last().unwrap_or(first);
+            first * 10 + last
         })
         .sum()
 }
