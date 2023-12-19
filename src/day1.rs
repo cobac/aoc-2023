@@ -1,6 +1,6 @@
 use aoc_runner_derive::aoc;
 
-#[aoc(day1, part1)]
+#[aoc(day1, part1, coba)]
 pub fn p1(input: &str) -> u32 {
     let v: Vec<_> = input
         .lines()
