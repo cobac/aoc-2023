@@ -104,36 +104,34 @@ pub fn p2_(input: &str) -> u32 {
 }
 
 fn parse_lines_(line: &str) -> u32 {
+    let numbers = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ]
+    .iter()
+    .zip(1..);
+
     let mut values = (0..line.len())
         .map(|index| {
+            // char generator
             let reduced_line = &line[index..];
-            let out = if reduced_line.starts_with("one") {
-                '1'
-            } else if reduced_line.starts_with("two") {
-                '2'
-            } else if reduced_line.starts_with("three") {
-                '3'
-            } else if reduced_line.starts_with("four") {
-                '4'
-            } else if reduced_line.starts_with("five") {
-                '5'
-            } else if reduced_line.starts_with("six") {
-                '6'
-            } else if reduced_line.starts_with("seven") {
-                '7'
-            } else if reduced_line.starts_with("eight") {
-                '8'
-            } else if reduced_line.starts_with("nine") {
-                '9'
-            } else {
-                reduced_line.chars().next().unwrap()
-            };
-            out
+
+            // sameish performance to clone the iterator vs allocating numbers once
+            for (word, num) in numbers.clone() {
+                // dbg!(reduced_line, word, num);
+                if reduced_line.starts_with(word) {
+                    // println!("called");
+                    // This breaks because it's not early-returning the closure
+                    // Why??
+                    return num.into();
+                }
+            }
+            reduced_line.chars().next().unwrap()
         })
         .filter_map(|char| char.to_digit(10));
 
     let first = values.next().expect("expecting at least one number");
     let last = values.last().unwrap_or(first);
+    // dbg!(line, first, last);
     first * 10 + last
 }
 
@@ -159,6 +157,6 @@ xtwone3four
 4nineeightseven2
 zoneight234
 7pqrstsixteen";
-        assert_eq!(p2(input), 29 + 83 + 13 + 24 + 42 + 14 + 76);
+        assert_eq!(p2_(input), 29 + 83 + 13 + 24 + 42 + 14 + 76);
     }
 }
