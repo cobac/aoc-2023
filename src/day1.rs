@@ -31,6 +31,31 @@ pub fn p1_(input: &str) -> u32 {
         .sum()
 }
 
+#[aoc(day1, part2, coba)]
+pub fn p2(input: &str) -> u32 {
+    // This approach doesn't work coz e.g. "eightwothree" needs to be "8wo3" and "1oneight" needs to be "18"
+    // let v: Vec<_> = input
+    //     .replace("one", "1")
+    //     .replace("two", "2")
+    //     .replace("three", "3")
+    //     .replace("four", "4")
+    //     .replace("five", "5")
+    //     .replace("six", "6")
+    //     .replace("seven", "7")
+    //     .replace("eight", "8")
+    //     .replace("nine", "9")
+    //     .lines()
+    //     .map(|line| {
+    //         line.chars()
+    //             .filter(|char| char.is_numeric())
+    //             .map(|x| x.to_digit(10).unwrap())
+    //             .collect::<Vec<u32>>()
+    //     })
+    //     .collect();
+
+    input.lines().map(parse_lines).sum()
+}
+
 fn parse_lines(line: &str) -> u32 {
     let numbers = [
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
@@ -73,29 +98,43 @@ fn parse_lines(line: &str) -> u32 {
     first_num * 10 + last_num
 }
 
-#[aoc(day1, part2, coba)]
-pub fn p2(input: &str) -> u32 {
-    // This approach doesn't work coz e.g. "eightwothree" needs to be "8wo3" and "1oneight" needs to be "18"
-    // let v: Vec<_> = input
-    //     .replace("one", "1")
-    //     .replace("two", "2")
-    //     .replace("three", "3")
-    //     .replace("four", "4")
-    //     .replace("five", "5")
-    //     .replace("six", "6")
-    //     .replace("seven", "7")
-    //     .replace("eight", "8")
-    //     .replace("nine", "9")
-    //     .lines()
-    //     .map(|line| {
-    //         line.chars()
-    //             .filter(|char| char.is_numeric())
-    //             .map(|x| x.to_digit(10).unwrap())
-    //             .collect::<Vec<u32>>()
-    //     })
-    //     .collect();
+#[aoc(day1, part2, internet)]
+pub fn p2_(input: &str) -> u32 {
+    input.lines().map(parse_lines_).sum()
+}
 
-    input.lines().map(parse_lines).sum()
+fn parse_lines_(line: &str) -> u32 {
+    let mut values = (0..line.len())
+        .map(|index| {
+            let reduced_line = &line[index..];
+            let out = if reduced_line.starts_with("one") {
+                '1'
+            } else if reduced_line.starts_with("two") {
+                '2'
+            } else if reduced_line.starts_with("three") {
+                '3'
+            } else if reduced_line.starts_with("four") {
+                '4'
+            } else if reduced_line.starts_with("five") {
+                '5'
+            } else if reduced_line.starts_with("six") {
+                '6'
+            } else if reduced_line.starts_with("seven") {
+                '7'
+            } else if reduced_line.starts_with("eight") {
+                '8'
+            } else if reduced_line.starts_with("nine") {
+                '9'
+            } else {
+                reduced_line.chars().next().unwrap()
+            };
+            out
+        })
+        .filter_map(|char| char.to_digit(10));
+
+    let first = values.next().expect("expecting at least one number");
+    let last = values.last().unwrap_or(first);
+    first * 10 + last
 }
 
 #[cfg(test)]
