@@ -31,32 +31,71 @@ pub fn p1_(input: &str) -> u32 {
         .sum()
 }
 
+fn parse_lines(line: &str) -> u32 {
+    let numbers = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    ]
+    .iter()
+    .zip(1..);
+
+    let first_num = 'out: {
+        for i in 0..line.len() {
+            // better to clone iterator twice than allocating full thing once?
+            for (word, num) in numbers.clone() {
+                if line[i..].starts_with(word) {
+                    break 'out num as u32;
+                } else {
+                    let c = line.chars().nth(i).unwrap();
+                    if c.is_ascii_digit() {
+                        break 'out c.to_digit(10).unwrap();
+                    }
+                };
+            }
+        }
+        0 // should never call this is horrible
+    };
+
+    let last_num = 'out: {
+        for i in (0..line.len()).rev() {
+            for (word, num) in numbers.clone() {
+                if line[i..].starts_with(word) {
+                    break 'out num as u32;
+                } else {
+                    let c = line.chars().nth(i).unwrap();
+                    if c.is_ascii_digit() {
+                        break 'out c.to_digit(10).unwrap();
+                    }
+                };
+            }
+        }
+        first_num // should never call this is horrible
+    };
+    first_num * 10 + last_num
+}
+
 #[aoc(day1, part2, coba)]
 pub fn p2(input: &str) -> u32 {
     // This approach doesn't work coz e.g. "eightwothree" needs to be "8wo3" and "1oneight" needs to be "18"
-    let v: Vec<_> = input
-        .replace("one", "1")
-        .replace("two", "2")
-        .replace("three", "3")
-        .replace("four", "4")
-        .replace("five", "5")
-        .replace("six", "6")
-        .replace("seven", "7")
-        .replace("eight", "8")
-        .replace("nine", "9")
-        .lines()
-        .map(|line| {
-            line.chars()
-                .filter(|char| char.is_numeric())
-                .map(|x| x.to_digit(10).unwrap())
-                .collect::<Vec<u32>>()
-        })
-        .collect();
+    // let v: Vec<_> = input
+    //     .replace("one", "1")
+    //     .replace("two", "2")
+    //     .replace("three", "3")
+    //     .replace("four", "4")
+    //     .replace("five", "5")
+    //     .replace("six", "6")
+    //     .replace("seven", "7")
+    //     .replace("eight", "8")
+    //     .replace("nine", "9")
+    //     .lines()
+    //     .map(|line| {
+    //         line.chars()
+    //             .filter(|char| char.is_numeric())
+    //             .map(|x| x.to_digit(10).unwrap())
+    //             .collect::<Vec<u32>>()
+    //     })
+    //     .collect();
 
-    // println!("{v:?}");
-    v.into_iter()
-        .map(|x| x.first().unwrap() * 10 + x.last().unwrap())
-        .sum()
+    input.lines().map(parse_lines).sum()
 }
 
 #[cfg(test)]
@@ -75,12 +114,12 @@ treb7uchet";
     #[test]
     fn p2_test() {
         let input = "two1nine
-eightwothree
+eightwo3three
 abcone2threexyz
 xtwone3four
 4nineeightseven2
 zoneight234
 7pqrstsixteen";
-        assert_eq!(p2(input), 281);
+        assert_eq!(p2(input), 29 + 83 + 13 + 24 + 42 + 14 + 76);
     }
 }
