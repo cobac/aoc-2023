@@ -100,38 +100,32 @@ fn parse_lines(line: &str) -> u32 {
 
 #[aoc(day1, part2, internet)]
 pub fn p2_(input: &str) -> u32 {
-    input.lines().map(parse_lines_).sum()
+    input.lines().map(parse_line_).sum()
 }
 
-fn parse_lines_(line: &str) -> u32 {
+fn parse_line_(line: &str) -> u32 {
     let numbers = [
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ]
     .iter()
-    .zip(1..);
+        .zip(1..);
 
     let mut values = (0..line.len())
-        .map(|index| {
-            // char generator
-            let reduced_line = &line[index..];
+        .map(|i| -> char {
+            let slice = &line[i..];
 
             // sameish performance to clone the iterator vs allocating numbers once
             for (word, num) in numbers.clone() {
-                // dbg!(reduced_line, word, num);
-                if reduced_line.starts_with(word) {
-                    // println!("called");
-                    // This breaks because it's not early-returning the closure
-                    // Why??
-                    return num.into();
+                if slice.starts_with(word) {
+                    return char::from_digit(num, 10).unwrap();
                 }
             }
-            reduced_line.chars().next().unwrap()
+            slice.chars().next().unwrap()
         })
-        .filter_map(|char| char.to_digit(10));
+        .filter_map(|c| c.to_digit(10));
 
-    let first = values.next().expect("expecting at least one number");
+    let first = values.next().expect("no number in line");
     let last = values.last().unwrap_or(first);
-    // dbg!(line, first, last);
     first * 10 + last
 }
 
