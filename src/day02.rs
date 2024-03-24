@@ -60,4 +60,58 @@ pub fn p1(input: &str) -> u32 {
         .sum()
 }
 
+struct MinColors {
+    min_red: u32,
+    min_green: u32,
+    min_blue: u32,
+}
+
+impl MinColors {
+    fn new() -> Self {
+        MinColors {
+            min_red: 0,
+            min_green: 0,
+            min_blue: 0,
+        }
+    }
+    fn update(&mut self, red: u32, green: u32, blue: u32) {
+        if red > self.min_red {
+            self.min_red = red;
+        };
+
+        if green > self.min_green {
+            self.min_green = green;
+        };
+
+        if blue > self.min_blue {
+            self.min_blue = blue;
+        };
+    }
+
+    fn product(&self) -> u32 {
+        self.min_red * self.min_green * self.min_blue
+    }
+}
+
+#[aoc(day2, part2, coba)]
+pub fn p2(input: &str) -> u32 {
+    input
+        .lines()
+        .map(|line| {
+            let mut min_colors = MinColors::new();
+            line.split_once(": ")
+                .expect("no ':' found")
+                .1
+                .split("; ")
+                .for_each(|set| {
+                    set.split(", ")
+                        .for_each(|cube| match cube.parse::<Cubes>().unwrap() {
+                            Cubes::Red(count) => min_colors.update(count, 0, 0),
+                            Cubes::Green(count) => min_colors.update(0, count, 0),
+                            Cubes::Blue(count) => min_colors.update(0, 0, count),
+                        });
+                });
+            min_colors.product()
+        })
+        .sum()
 }
