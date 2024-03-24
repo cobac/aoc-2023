@@ -60,6 +60,7 @@ pub fn p1(input: &str) -> u32 {
         .sum()
 }
 
+#[derive(Default)]
 struct MinColors {
     min_red: u32,
     min_green: u32,
@@ -67,13 +68,6 @@ struct MinColors {
 }
 
 impl MinColors {
-    fn new() -> Self {
-        MinColors {
-            min_red: 0,
-            min_green: 0,
-            min_blue: 0,
-        }
-    }
     fn update(&mut self, red: u32, green: u32, blue: u32) {
         if red > self.min_red {
             self.min_red = red;
@@ -98,7 +92,7 @@ pub fn p2(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let mut min_colors = MinColors::new();
+            let mut min_colors = MinColors::default();
             line.split_once(": ")
                 .expect("no ':' found")
                 .1
