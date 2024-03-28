@@ -65,6 +65,12 @@ pub fn p1(input: &str) -> u32 {
         }
     }
 
+    dbg!(bitmask);
+
+    // TODO: Iterate over bitmask to select items of trues, grouping contiguous ones
+    // use that to index into the schematic
+    // sum them boiis
+
     3
 }
 
