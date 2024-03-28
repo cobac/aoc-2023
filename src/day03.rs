@@ -38,16 +38,18 @@ pub fn p1(input: &str) -> u32 {
     // need a mask to take into account numbers that might touch multiple symbols
     let mut bitmask = vec![vec![false; width]; height];
 
-    for (x, y) in (0..=width - 1).zip(0..=height - 1) {
-        if is_symbol(schematic.owned_index(x, y)) {
-            let indixes = get_neighbour_indexes(
-                x.try_into().unwrap(),
-                y.try_into().unwrap(),
-                (width as i32) - 1,
-                (height as i32) - 1,
-            );
-            for (xi, yi) in indixes {
-                bitmask[yi][xi] = true;
+    for x in 0..=(width - 1) {
+        for y in 0..=(height - 1) {
+            if is_symbol(schematic.owned_index(x, y)) {
+                let indixes = get_neighbour_indexes(
+                    x.try_into().unwrap(),
+                    y.try_into().unwrap(),
+                    (width as i32) - 1,
+                    (height as i32) - 1,
+                );
+                for (xi, yi) in indixes {
+                    bitmask[yi][xi] = true;
+                }
             }
         }
     }
@@ -64,5 +66,18 @@ mod tests {
         assert!(!is_symbol('1'));
         assert!(!is_symbol('.'));
         assert!(is_symbol('&'));
+        assert!(is_symbol('*'));
+        assert!(is_symbol('+'));
+        assert!(is_symbol('#'));
+        assert!(is_symbol('@'));
+        assert!(is_symbol('/'));
+    }
+
+    #[ignore]
+    #[test]
+    fn test_get_neighbour_indexes() {
+        let idx = get_neighbour_indexes(2, 2, 10, 10);
+        dbg!(&idx);
+        assert!(idx == vec![(1, 3), (4, 5)]);
     }
 }
