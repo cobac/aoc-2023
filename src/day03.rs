@@ -38,6 +38,7 @@ pub fn p1(input: &str) -> u32 {
     // need a mask to take into account numbers that might touch multiple symbols
     let mut bitmask = vec![vec![false; width]; height];
 
+    // ugly
     for x in 0..=(width - 1) {
         for y in 0..=(height - 1) {
             if is_symbol(schematic.owned_index(x, y)) {
@@ -49,6 +50,16 @@ pub fn p1(input: &str) -> u32 {
                 );
                 for (xi, yi) in indixes {
                     bitmask[yi][xi] = true;
+                    let mut i = 1;
+                    loop {
+                        if xi + i < height - 1 && schematic.owned_index(xi + i, yi).is_ascii_digit()
+                        {
+                            bitmask[yi][xi + i] = true;
+                            i += 1;
+                        } else {
+                            break;
+                        }
+                    }
                 }
             }
         }
