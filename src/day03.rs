@@ -16,7 +16,7 @@ impl Schematic<'_> {
 }
 
 fn is_symbol(c: char) -> bool {
-    !((c == '.') || c.is_digit(10))
+    !((c == '.') || c.is_ascii_digit())
 }
 
 #[rustfmt::skip]
@@ -34,7 +34,7 @@ fn get_neighbour_indexes(x: i32, y: i32, max_x: i32, max_y: i32) -> Vec<(usize, 
 #[aoc(day3, part1, coba)]
 pub fn p1(input: &str) -> u32 {
     let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
-    let schematic = Schematic(&input);
+    let schematic = Schematic(input);
     // need a mask to take into account numbers that might touch multiple symbols
     let mut bitmask = vec![vec![false; width]; height];
 
@@ -61,8 +61,8 @@ mod tests {
 
     #[test]
     fn test_is_symbol() {
-        assert!(is_symbol('1') == false);
-        assert!(is_symbol('.') == false);
-        assert!(is_symbol('&') == true);
+        assert!(!is_symbol('1'));
+        assert!(!is_symbol('.'));
+        assert!(is_symbol('&'));
     }
 }
