@@ -53,11 +53,13 @@ pub fn p1(input: &str) -> u32 {
             let grouped_x_indixes = line
                 .chars()
                 .enumerate()
-                // where are my monads
-                .filter_map(|(x, character)| match (x, character.to_digit(10)) {
-                    (_, None) => None,
-                    (x, Some(_)) => Some(x),
+                // Get x_indixes of all numbers
+                // also, where are my monads
+                .filter_map(|(x, character)| match (x, character.is_ascii_digit()) {
+                    (_, false) => None,
+                    (x, true) => Some(x),
                 })
+                // Group x_indixes into sub-groups of contiguous values (e.g. [1, 2, 4, 5] => [[1, 2], [4, 5]])
                 .fold(vec![], |mut grouped_indixes: Vec<Vec<usize>>, x| {
                     // If there is already a group
                     if let Some(last_group) = grouped_indixes.last_mut() {
@@ -68,8 +70,8 @@ pub fn p1(input: &str) -> u32 {
                         }
                         // Add current value to the last group
                         grouped_indixes.last_mut().unwrap().push(x);
-                        // If group present
                     } else {
+                        // If no group:
                         // Add new group with current value
                         grouped_indixes.push(vec![x]);
                     }
@@ -77,6 +79,7 @@ pub fn p1(input: &str) -> u32 {
                 });
             (y, grouped_x_indixes)
         })
+        // Line of grouped xs into sum of valid numbers per line
         .map(|(y, grouped_xs)| {
             grouped_xs
                 .into_iter()
@@ -105,81 +108,83 @@ pub fn p1(input: &str) -> u32 {
                                 .expect("Wrong indexing, assuming it's number")
                     })
                 })
+                // Sum all numbers per line, idk why type cannot be inferred
                 .sum::<u32>()
         })
+        // Sum all lines
         .sum()
 }
 
-// Discarded WIP, should be easier to iterate over numbers,
-// and then check if they touch a symbol instead of iterating over symbols and checking numbers
-// pub fn p1_old(input: &str) -> u32 {
-//     let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
-//     let schematic = Schematic(input);
-//     // need a mask to take into account numbers that might touch multiple symbols
-//     let mut bitmask = vec![vec![false; width]; height];
+// Discarded WIP. This attempt was iterating over symbols, trying to collect adjacent numbers
+// Should be easier to iterate over numbers and check if there are symbols adjacent instead
+pub fn p1_discarded_attempt(input: &str) -> u32 {
+    let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
+    let schematic = Schematic(input);
+    // need a mask to take into account numbers that might touch multiple symbols
+    let mut bitmask = vec![vec![false; width]; height];
 
-//     for x in 0..=(width - 1) {
-//         for y in 0..=(height - 1) {
-//             if is_symbol(schematic.owned_index(x, y)) {
-//                 let indixes = get_neighbour_indexes(
-//                     x.try_into().unwrap(),
-//                     y.try_into().unwrap(),
-//                     (width as i32) - 1,
-//                     (height as i32) - 1,
-//                 );
-//                 for (xi, yi) in indixes {
-//                     bitmask[yi][xi] = true;
-//                     let mut i = 1;
-//                     loop {
-//                         if xi + i < height - 1 && schematic.owned_index(xi + i, yi).is_ascii_digit()
-//                         {
-//                             // TODO: Incorrect, need to check to the left too
-//                             bitmask[yi][xi + i] = true;
-//                             i += 1;
-//                         } else {
-//                             break;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
+    for x in 0..=(width - 1) {
+        for y in 0..=(height - 1) {
+            if is_symbol(schematic.owned_index(x, y)) {
+                let indixes = get_neighbour_indexes(
+                    x.try_into().unwrap(),
+                    y.try_into().unwrap(),
+                    (width as i32) - 1,
+                    (height as i32) - 1,
+                );
+                for (xi, yi) in indixes {
+                    bitmask[yi][xi] = true;
+                    let mut i = 1;
+                    loop {
+                        if xi + i < height - 1 && schematic.owned_index(xi + i, yi).is_ascii_digit()
+                        {
+                            // TODO: Incorrect, need to check to the left too
+                            bitmask[yi][xi + i] = true;
+                            i += 1;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-//     let _ = bitmask
-//         .into_iter()
-//         .map(|line| {
-//             line.into_iter()
-//                 .enumerate()
-//                 .filter(|(_, b)| *b)
-//                 .map(|(i, _)| i)
-//                 .fold(vec![], |mut grouped_indixes: Vec<Vec<usize>>, x| {
-//                     // If there is already a group
-//                     if let Some(last_group) = grouped_indixes.last_mut() {
-//                         // If the current index -1 is not == previous index
-//                         if x - 1 != *last_group.last().unwrap_or(&0) {
-//                             // Add new group
-//                             grouped_indixes.push(vec![]);
-//                         }
-//                         // Add current value to the last group
-//                         grouped_indixes.last_mut().unwrap().push(x);
-//                         // If group present
-//                     } else {
-//                         // Add new group with current value
-//                         grouped_indixes.push(vec![x]);
-//                     }
-//                     grouped_indixes
-//                 })
-//         })
-//         .inspect(|x| {
-//             dbg!(x);
-//         });
+    let _ = bitmask
+        .into_iter()
+        .map(|line| {
+            line.into_iter()
+                .enumerate()
+                .filter(|(_, b)| *b)
+                .map(|(i, _)| i)
+                .fold(vec![], |mut grouped_indixes: Vec<Vec<usize>>, x| {
+                    // If there is already a group
+                    if let Some(last_group) = grouped_indixes.last_mut() {
+                        // If the current index -1 is not == previous index
+                        if x - 1 != *last_group.last().unwrap_or(&0) {
+                            // Add new group
+                            grouped_indixes.push(vec![]);
+                        }
+                        // Add current value to the last group
+                        grouped_indixes.last_mut().unwrap().push(x);
+                        // If group present
+                    } else {
+                        // Add new group with current value
+                        grouped_indixes.push(vec![x]);
+                    }
+                    grouped_indixes
+                })
+        })
+        .inspect(|x| {
+            dbg!(x);
+        });
 
-//     // TODO: Iterate over bitmask to select items of trues, grouping contiguous ones
-//     // use that to index into the schematic
-//     // sum them boiis
+    // TODO: Iterate over bitmask to select items of trues, grouping contiguous ones
+    // use that to index into the schematic
+    // sum them boiis
 
-//     todo!();
-// }
+    todo!();
+}
 
 #[cfg(test)]
 mod tests {
