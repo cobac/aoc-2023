@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::{collections::BTreeMap, ops::Deref};
 
 use aoc_runner_derive::aoc;
 
@@ -188,7 +188,58 @@ pub fn p1_discarded_attempt(input: &str) -> u32 {
 
 #[aoc(day3, part2, coba)]
 pub fn p2(input: &str) -> u32 {
-    3
+    let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
+    let schematic = Schematic(input);
+    // *-position : [nums]
+    let mut symbol_numbers_map: BTreeMap<(usize, usize), Vec<u32>> = BTreeMap::new();
+
+    schematic
+        .lines()
+        .enumerate()
+        .map(|(y, line)| (y, find_numbers(line)))
+        // Update symbol_numbers_map
+        .for_each(|(y, grouped_xs)| {
+            grouped_xs
+                .into_iter()
+                // Indexes groups of numbers with * adjacent
+                .for_each(|xs| {
+                    // Parse index into numbers
+                    let value = xs.iter().fold(0, |acc, x| {
+                        acc * 10
+                            + schematic
+                                .owned_index(*x, y)
+                                .to_digit(10)
+                                .expect("Wrong indexing, assuming it's number")
+                    });
+                    xs.iter()
+                        // Position has any * neighbours
+                        .for_each(|x| {
+                            get_neighbour_indexes(*x as i32, y as i32, width as i32, height as i32)
+                                .iter()
+                                // Specific neighbour is *
+                                .for_each(|(neigh_x, neigh_y)| {
+                                    // Each value might be added multiple times if it's adjacent to multiple characters of the number
+                                    if schematic.owned_index(*neigh_x, *neigh_y) == '*' {
+                                        symbol_numbers_map
+                                            .entry((*neigh_x, *neigh_y))
+                                            .and_modify(|vec| vec.push(value))
+                                            .or_insert(vec![value]);
+                                    }
+                                })
+                        })
+                })
+        });
+
+    symbol_numbers_map
+        .iter_mut()
+        .map(|(_, vals)| {
+            // This assumes no * is adjacent to two identical numbers
+            vals.dedup();
+            vals
+        })
+        .filter(|vals| vals.len() == 2)
+        .map(|vals| vals.iter().product::<u32>())
+        .sum()
 }
 
 #[cfg(test)]
