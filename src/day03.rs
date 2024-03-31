@@ -41,6 +41,9 @@ fn get_neighbour_indexes(x: i32, y: i32, max_x: i32, max_y: i32) -> Vec<(usize, 
         .collect()
 }
 
+/// Find numbers in a string and return a vector of vector of indixes,
+/// grouped by indexes that are contiguous
+/// e.g. "22a44" => [[0, 1], [3, 4]]
 fn find_numbers(line: &str) -> Vec<Vec<usize>> {
     line.chars()
         .enumerate()
@@ -98,7 +101,7 @@ pub fn p1(input: &str) -> u32 {
                         })
                         .any(|b| b)
                 })
-                // Parse index into numbers
+                // Parse indexes into numbers
                 .map(move |xs| {
                     xs.iter().fold(0, |acc, x| {
                         acc * 10
@@ -115,7 +118,7 @@ pub fn p1(input: &str) -> u32 {
         .sum()
 }
 
-// Discarded WIP. This attempt was iterating over symbols, trying to collect adjacent numbers
+// Discarded WIP. This attempt was iterating over symbols, and collecting adjacent numbers
 // Should be easier to iterate over numbers and check if there are symbols adjacent instead
 pub fn p1_discarded_attempt(input: &str) -> u32 {
     let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
@@ -203,7 +206,7 @@ pub fn p2(input: &str) -> u32 {
                 .into_iter()
                 // Indexes groups of numbers with * adjacent
                 .for_each(|xs| {
-                    // Parse index into numbers
+                    // Parse indexes into numbers
                     let value = xs.iter().fold(0, |acc, x| {
                         acc * 10
                             + schematic
