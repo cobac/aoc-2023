@@ -2,6 +2,7 @@ use std::ops::Deref;
 
 use aoc_runner_derive::aoc;
 
+#[derive(Copy, Clone)]
 struct Schematic<'a>(&'a str);
 
 impl<'a> Deref for Schematic<'a> {
@@ -45,7 +46,7 @@ pub fn p1(input: &str) -> u32 {
     let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
     let schematic = Schematic(input);
 
-    let indexes: Vec<_> = schematic
+    schematic
         .lines()
         .enumerate()
         .map(|(y, line)| {
@@ -77,24 +78,36 @@ pub fn p1(input: &str) -> u32 {
             (y, grouped_x_indixes)
         })
         .map(|(y, grouped_xs)| {
-            grouped_xs.iter().filter(|xs| {
-                xs.iter()
-                    // Position has any symbol neighbours
-                    .map(|x| {
-                        get_neighbour_indexes(*x as i32, y as i32, width as i32, height as i32)
-                            .iter()
-                            .map(|(neigh_x, neigh_y)| {
-                                is_symbol(schematic.owned_index(*neigh_x, *neigh_y))
-                            })
-                            .any(|b| b)
+            grouped_xs
+                .into_iter()
+                // Indexes groups of numbers with symbols adjacent
+                .filter(move |xs| {
+                    xs.iter()
+                        // Position has any symbol neighbours
+                        .map(|x| {
+                            get_neighbour_indexes(*x as i32, y as i32, width as i32, height as i32)
+                                .iter()
+                                // Specific neighbour is symbol
+                                .map(|(neigh_x, neigh_y)| {
+                                    is_symbol(schematic.owned_index(*neigh_x, *neigh_y))
+                                })
+                                .any(|b| b)
+                        })
+                        .any(|b| b)
+                })
+                // Parse index into numbers
+                .map(move |xs| {
+                    xs.iter().fold(0, |acc, x| {
+                        acc * 10
+                            + schematic
+                                .owned_index(*x, y)
+                                .to_digit(10)
+                                .expect("Wrong indexing, assuming it's number")
                     })
-                    // (potentially) multi-char number has any symbol neighbours
-                    .any(|b| b)
-            })
+                })
+                .sum::<u32>()
         })
-        .collect();
-    dbg!(indexes);
-    todo!()
+        .sum()
 }
 
 // Discarded WIP, should be easier to iterate over numbers,
