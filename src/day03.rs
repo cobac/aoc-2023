@@ -41,6 +41,35 @@ fn get_neighbour_indexes(x: i32, y: i32, max_x: i32, max_y: i32) -> Vec<(usize, 
         .collect()
 }
 
+fn find_numbers(line: &str) -> Vec<Vec<usize>> {
+    line.chars()
+        .enumerate()
+        // Get x_indixes of all numbers
+        // also, where are my monads
+        .filter_map(|(x, character)| match (x, character.is_ascii_digit()) {
+            (_, false) => None,
+            (x, true) => Some(x),
+        })
+        // Group x_indixes into sub-groups of contiguous values (e.g. [1, 2, 4, 5] => [[1, 2], [4, 5]])
+        .fold(vec![], |mut grouped_indixes: Vec<Vec<usize>>, x| {
+            // If there is already a group
+            if let Some(last_group) = grouped_indixes.last_mut() {
+                // If the current index -1 is not == previous index
+                if x - 1 != *last_group.last().unwrap_or(&0) {
+                    // Add new group
+                    grouped_indixes.push(vec![]);
+                }
+                // Add current value to the last group
+                grouped_indixes.last_mut().unwrap().push(x);
+            } else {
+                // If no group:
+                // Add new group with current value
+                grouped_indixes.push(vec![x]);
+            }
+            grouped_indixes
+        })
+}
+
 #[aoc(day3, part1, coba)]
 pub fn p1(input: &str) -> u32 {
     let (width, height) = (input.lines().next().unwrap().len(), input.lines().count());
@@ -49,36 +78,7 @@ pub fn p1(input: &str) -> u32 {
     schematic
         .lines()
         .enumerate()
-        .map(|(y, line)| {
-            let grouped_x_indixes = line
-                .chars()
-                .enumerate()
-                // Get x_indixes of all numbers
-                // also, where are my monads
-                .filter_map(|(x, character)| match (x, character.is_ascii_digit()) {
-                    (_, false) => None,
-                    (x, true) => Some(x),
-                })
-                // Group x_indixes into sub-groups of contiguous values (e.g. [1, 2, 4, 5] => [[1, 2], [4, 5]])
-                .fold(vec![], |mut grouped_indixes: Vec<Vec<usize>>, x| {
-                    // If there is already a group
-                    if let Some(last_group) = grouped_indixes.last_mut() {
-                        // If the current index -1 is not == previous index
-                        if x - 1 != *last_group.last().unwrap_or(&0) {
-                            // Add new group
-                            grouped_indixes.push(vec![]);
-                        }
-                        // Add current value to the last group
-                        grouped_indixes.last_mut().unwrap().push(x);
-                    } else {
-                        // If no group:
-                        // Add new group with current value
-                        grouped_indixes.push(vec![x]);
-                    }
-                    grouped_indixes
-                });
-            (y, grouped_x_indixes)
-        })
+        .map(|(y, line)| (y, find_numbers(line)))
         // Line of grouped xs into sum of valid numbers per line
         .map(|(y, grouped_xs)| {
             grouped_xs
@@ -184,6 +184,11 @@ pub fn p1_discarded_attempt(input: &str) -> u32 {
     // sum them boiis
 
     todo!();
+}
+
+#[aoc(day3, part2, coba)]
+pub fn p2(input: &str) -> u32 {
+    3
 }
 
 #[cfg(test)]
